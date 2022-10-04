@@ -47,7 +47,7 @@ int main(void)
 	  uint8_t old_value = 0;
 	
 	  uint8_t SW_value = 0;
-	  
+	  uint8_t value_inverted = 0;
 
     // add variables below
     /// STUDENTS: To be programmed
@@ -56,7 +56,8 @@ int main(void)
 
 
     /// END: To be programmed
-
+	SW_value = read_byte(ADDR_DIP_SWITCH_7_0);
+	
     while (1) {
         // ---------- Task 3.1 ----------
         led_value = read_byte(ADDR_DIP_SWITCH_7_0);
@@ -75,7 +76,7 @@ int main(void)
 			  button_value = button_value & MASK_4bit;
 			  uint8_t edge = button_value & ~old_value;
 			  old_value = button_value;
-  
+        
 			
   			/// STUDENTS: To be programmed
 
@@ -85,35 +86,30 @@ int main(void)
 				write_byte(ADDR_LED_15_8, index);				
 
 
-			  // Task 3.3
+			  // Task 3.2 und 3.3
 				
 				
 				if (edge & 0x01) {
 					edge_index += 1;						
 				  write_byte(ADDR_LED_31_24, edge_index);
+					SW_value = (SW_value >> 1);
+					write_byte(ADDR_LED_23_16, SW_value);
 			  } 
-				else if (edge & 0x02) {
-					SW_value = read_byte(ADDR_DIP_SWITCH_7_0);
+				if (edge & 0x02) {
 					SW_value = (SW_value << 1);
 					write_byte(ADDR_LED_23_16, SW_value);	
 				}
-				else if (edge & 0x04) {
-					SW_value = read_byte(ADDR_DIP_SWITCH_7_0); 
-          SW_value = ~SW_value;					
-					write_byte(ADDR_LED_23_16, SW_value);					
+				
+				if (edge & 0x04) { 
+					SW_value = read_byte(ADDR_DIP_SWITCH_7_0);
+          value_inverted = ~SW_value;					
+					write_byte(ADDR_LED_23_16, value_inverted);					
 				}
-				else if (edge & 0x08) {
-					SW_value = read_byte(ADDR_DIP_SWITCH_7_0);  
+				
+				if (edge & 0x08) { 
+					SW_value = read_byte(ADDR_DIP_SWITCH_7_0);
 					write_byte(ADDR_LED_23_16, SW_value);
 				}
-				else {
-				}
-
-
-	    
-			
-				
-				
 
         /// END: To be programmed
     }
