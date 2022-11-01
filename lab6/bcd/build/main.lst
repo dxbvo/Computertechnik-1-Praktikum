@@ -216,7 +216,7 @@ ARM Macro Assembler    Page 4
   145 00000072 2000            MOVS             R0, #0      ;counter variable
   146 00000074 2110            MOVS             R1, #16
   147 00000076 4288    rot_loop
-                               CMP              R0, R1      ;is R0 > R1?  
+                               CMP              R0, R1
   148 00000078 D808            BHI              go_on       ;after 16 rotations
                                                              break out
   149 0000007A 1C40            ADDS             R0, R0, #1  ;+1

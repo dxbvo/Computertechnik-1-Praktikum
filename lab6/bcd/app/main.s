@@ -144,7 +144,7 @@ endbar  	SUBS R1, #1
 			
 			MOVS R0, #0				;counter variable
 			MOVS R1, #16			
-rot_loop	CMP R0, R1				;is R0 > R1?		
+rot_loop	CMP R0, R1		
 			BHI go_on				;after 16 rotations break out
 			ADDS R0, R0, #1  		;+1
 			MOVS R4, #1
