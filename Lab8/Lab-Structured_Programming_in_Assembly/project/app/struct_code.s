@@ -48,7 +48,7 @@ DISPLAY_COLOUR_RED        EQU        0
 DISPLAY_COLOUR_GREEN      EQU        2
 DISPLAY_COLOUR_BLUE       EQU        4
 	
-BITMASK_KEY_T0            EQU        0x00000001	
+
 
 ; ------------------------------------------------------------------
 ; -- myConstants
@@ -59,6 +59,7 @@ DISPLAY_BIT               DCB        "Bit "
 DISPLAY_2_BIT             DCB        "2"
 DISPLAY_4_BIT             DCB        "4"
 DISPLAY_8_BIT             DCB        "8"
+DISPLAY_ARR_BIT           DCB        "012345678"
         ALIGN
 
 ; ------------------------------------------------------------------
@@ -80,61 +81,115 @@ main    PROC
 main_loop
 ; STUDENTS: To be programmed
 
-; die Beleuchtungen müssen noch ausgeschaltet werden
-
-		BL adc_get_value
-
-        LDR     R1, =ADDR_BUTTONS             ; laod base address of keys
-        LDR     R2, =BITMASK_KEY_T0           ; load key mask T0
-        LDRB    R0, [R1]                      ; load key values
-        TST     R0, R2                        ; check, if key T0 is pressed
-		 
-		LDR  R0, =ADDR_LCD_COLOUR
+		;load ADC value
+		BL	adc_get_value
+		
+		;reset LCD every Loop
+		LDR	 R3, =ADDR_LCD_COLOUR
 		LDR  R2, =0x0000
-		STRH R2, [R0, #DISPLAY_COLOUR_GREEN]  ; All LCD Diplay off
-		STRH R2, [R0, #DISPLAY_COLOUR_RED]
-		STRH R2, [R0, #DISPLAY_COLOUR_BLUE]
-
-        BEQ     T0_not_pressed   ; Z=1
-
-T0_pressed ;Green case
+		STRH R2, [R3, #DISPLAY_COLOUR_RED]
+		STRH R2, [R3, #DISPLAY_COLOUR_GREEN]
+		STRH R2, [R3, #DISPLAY_COLOUR_BLUE]
 		
-		LDR  R0, =ADDR_LCD_COLOUR 
-		LDR  R1, =0xFFFF
-		STRH R1, [R0, #DISPLAY_COLOUR_GREEN]  ; LCD green on
+		;check if Button T0 is pressed
+		LDR  R1, =ADDR_BUTTONS
+		LDR  R1, [R1]
+		MOVS R2, #0x01
+		ANDS R1,R2
 		
-		BL adc_get_value                      ; get ADC value to R0
-		LDR  R2, =ADDR_7_SEG_BIN_DS3_0
-		STRH R0, [R2]	                      ; store ADC value to DS1 and DS0
+		;if NOT pressed
+		BEQ released
+		BL clear_lcd
+		;display adc value on 7 seg
+		LDR R2, =ADDR_7_SEG_BIN_DS3_0
+		STR R0, [R2]
 		
+		;set color to green
+		LDR  R3, =ADDR_LCD_COLOUR
+		LDR  R4, =0xFFFF							;max brightness
+		STRH R4, [R3, #DISPLAY_COLOUR_GREEN]
+		MOVS R1, R0
+		;Aufgabe 3b
+		LSRS R2, R0, #3	;divide by 8
+		ADDS R2, #1
+		MOVS R3, #0		;bar counter variable
+		MOVS R5, #0		;loop counter variable
+cnt		LSLS R5, #1
+		ADDS R5, #1
+		ADDS R3, #1
+		CMP  R2, R3
+		BHI cnt
 		
-T0_not_pressed	
+		;display the bar
+		LDR R4, =ADDR_LED_31_0
+		STR R5, [R4]
 		
-		BL adc_get_value                      ; get ADC value to R0
-		LDR  R1, =ADDR_LCD_COLOUR 
-		LDR  R2, =0xFFFF
-		STRH R2, [R1, #DISPLAY_COLOUR_RED]    ; LCD red on
+		B main_loop
 		
-		LDR  R3, =ADDR_DIP_SWITCH_7_0         
-		LDR  R3, [R3]	                    
-		SUBS R4, R0, R3                       ; diff of value(S7..S0) - ADC value
-		LDR  R5, =ADDR_7_SEG_BIN_DS3_0
-		STR  R4, [R5]                         ; store diff to 7-segment
+released
+		;read Dip switch 0-7
+		LDR  R1, =ADDR_DIP_SWITCH_7_0
+		LDRB R1, [R1]
 		
-		MOVS  R6, #0x00000000
-		CMP   R4, R6                          ; compare R4, R6                                          ab hier gibt es fehler. LCD erscheint violet statt blau
-		BGE case_blue                         ; signed greater than or equal N==V
+		;set color to RED
+		LDR R3, =ADDR_LCD_COLOUR
+		LDR R4, =0xFFFF
+		;if Diff < 0
+		SUBS R1, R1, R0	;DIP - ADC
+		BMI less
+		;set color to blue
+		STRH R4, [R3, #DISPLAY_COLOUR_BLUE]
 		
-case_blue
-
-		LDR  R0, =ADDR_LCD_COLOUR
-		LDR  R2, =0x0000
-		STRH R2, [R0, #DISPLAY_COLOUR_GREEN]  ; green and red LCD Diplay off
-		STRH R2, [R0, #DISPLAY_COLOUR_RED]
-		LDR  R3, =0xFFFF
-		STRH R3, [R1, #DISPLAY_COLOUR_BLUE]   ; blue LCD on
+		;display ADC value to 7SEG
+		LDR R2, =ADDR_7_SEG_BIN_DS3_0
+		STR R1, [R2]
 		
-
+		;Aufgabe 3c
+		CMP R1, #16
+		BGE Bits_8
+		CMP R1, #4
+		BGE Bits_4
+		LDR R5, =DISPLAY_2_BIT
+		B display
+Bits_8
+		LDR R5, =DISPLAY_8_BIT
+		B display
+Bits_4
+		LDR R5, =DISPLAY_4_BIT
+display	BL clear_lcd
+		LDRB R5, [R5]
+		LDR  R6, =ADDR_LCD_ASCII
+		STR  R5, [R6]
+		BL write_bit_ascii	;display "Bit" on LCD
+		B main_loop
+		
+less	;display ADC value to 7SEG
+		LDR R2, =ADDR_7_SEG_BIN_DS3_0
+		STR R1, [R2]
+		
+		;set color to red
+		STRH R4, [R3, #DISPLAY_COLOUR_RED]
+		;Aufgabe 3d
+		MOVS R7, #0x000000FF
+		ANDS R1, R1, R7
+		MOVS R0, #0			;counter variable
+		;MOVS R3, #0		;for carry operation
+s_cnt	SUBS R3, R1, #0
+		BEQ end_cnt			;if 0
+		LSRS R1, #1			;left shift 1
+		BCC s_cnt			;if carry == 0 add 1 to counter
+		ADDS R0, #1
+		B s_cnt
+end_cnt	
+		;write the counted zeros to the 2nd line of the LCD
+		BL clear_lcd
+		MOVS R1, #8
+		SUBS R0, R1, R0
+		LDR  R6, =ADDR_LCD_ASCII_2ND_LINE
+		LDR  R5, =DISPLAY_ARR_BIT
+		LDR  R4, [R5, R0]
+		STRB R4 , [R6]
+                          
 ; END: To be programmed
         B          main_loop
         
