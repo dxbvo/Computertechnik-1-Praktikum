@@ -1,0 +1,131 @@
+
+
+
+ARM Macro Assembler    Page 1 
+
+
+    1 00000000         ;* -----------------------------------------------------
+                       -------------
+    2 00000000         ;* --  _____       ______  _____                        
+                                   -
+    3 00000000         ;* -- |_   _|     |  ____|/ ____|                       
+                                   -
+    4 00000000         ;* --   | |  _ __ | |__  | (___    Institute of Embedded
+                        Systems    -
+    5 00000000         ;* --   | | | '_ \|  __|  \___ \   Zurich University of 
+                                   -
+    6 00000000         ;* --  _| |_| | | | |____ ____) |  Applied Sciences     
+                                   -
+    7 00000000         ;* -- |_____|_| |_|______|_____/   8401 Winterthur, Swit
+                       zerland     -
+    8 00000000         ;* -----------------------------------------------------
+                       -------------
+    9 00000000         ;* --
+   10 00000000         ;* -- Project     : CT1 - Lab 10
+   11 00000000         ;* -- Description : Search Max
+   12 00000000         ;* -- 
+   13 00000000         ;* -- $Id: search_max.s 879 2014-10-24 09:00:00Z muln $
+   14 00000000         ;* -----------------------------------------------------
+                       -------------
+   15 00000000         
+   16 00000000         
+   17 00000000         ; ------------------------------------------------------
+                       -------------
+   18 00000000         ; -- Constants
+   19 00000000         ; ------------------------------------------------------
+                       -------------
+   20 00000000                 AREA             myCode, CODE, READONLY
+   21 00000000                 THUMB
+   22 00000000         
+   23 00000000         ; STUDENTS: To be programmed
+   24 00000000         
+   25 00000000         
+   26 00000000         
+   27 00000000         
+   28 00000000         ; END: To be programmed
+   29 00000000         ; ------------------------------------------------------
+                       -------------                    
+   30 00000000         ; Searchmax
+   31 00000000         ; - tableaddress in R0
+   32 00000000         ; - table length in R1
+   33 00000000         ; - result returned in R0
+   34 00000000         ; ------------------------------------------------------
+                       -------------   
+   35 00000000         search_max
+                               PROC
+   36 00000000                 EXPORT           search_max
+   37 00000000         
+   38 00000000         ; STUDENTS: To be programmed
+   39 00000000         
+   40 00000000         ;test the length of table
+   41 00000000 4F02            LDR              R7, =0x00
+   42 00000002 42B9            CMP              R1, R7
+   43 00000004 D000            BEQ              table_is_zero
+   44 00000006         
+   45 00000006         ;table is not zero
+
+
+
+ARM Macro Assembler    Page 2 
+
+
+   46 00000006 6800            LDR              R0, [R0]
+   47 00000008         
+   48 00000008         
+   49 00000008         table_is_zero
+   50 00000008 4801            LDR              R0, =0x80000000
+   51 0000000A         
+   52 0000000A         
+   53 0000000A         
+   54 0000000A         
+   55 0000000A         
+   56 0000000A         ; END: To be programmed
+   57 0000000A 00 00           ALIGN
+   58 0000000C                 ENDP
+   59 0000000C         ; ------------------------------------------------------
+                       -------------
+   60 0000000C         ; -- End of file
+   61 0000000C         ; ------------------------------------------------------
+                       -------------                      
+   62 0000000C                 END
+              00000000 
+              80000000 
+Command Line: --debug --xref --diag_suppress=9931 --cpu=Cortex-M0 --depend=.\bu
+ild\search_max.d -o.\build\search_max.o -I.\RTE\_Target_1 -IC:\Users\claud\AppD
+ata\Local\Arm\Packs\InES\CTBoard14_DFP\4.0.2\Device\Include -IC:\Users\claud\Ap
+pData\Local\Arm\Packs\InES\CTBoard14_DFP\4.0.2\Device\Include\m0 -IC:\Users\cla
+ud\AppData\Local\Arm\Packs\InES\CTBoard14_DFP\4.0.2\HAL\Include --predefine="__
+EVAL SETA 1" --predefine="__UVISION_VERSION SETA 537" --predefine="_RTE_ SETA 1
+" --predefine="_RTE_ SETA 1" --list=.\build\search_max.lst app\search_max.s
+
+
+
+ARM Macro Assembler    Page 1 Alphabetic symbol ordering
+Relocatable symbols
+
+myCode 00000000
+
+Symbol: myCode
+   Definitions
+      At line 20 in file app\search_max.s
+   Uses
+      None
+Comment: myCode unused
+search_max 00000000
+
+Symbol: search_max
+   Definitions
+      At line 35 in file app\search_max.s
+   Uses
+      At line 36 in file app\search_max.s
+Comment: search_max used once
+table_is_zero 00000008
+
+Symbol: table_is_zero
+   Definitions
+      At line 49 in file app\search_max.s
+   Uses
+      At line 43 in file app\search_max.s
+Comment: table_is_zero used once
+3 symbols
+338 symbols in table
