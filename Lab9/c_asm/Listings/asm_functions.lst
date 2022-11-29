@@ -1,0 +1,72 @@
+
+
+
+ARM Macro Assembler    Page 1 
+
+
+    1 00000000         
+    2 00000000                 AREA             myCode, CODE, READONLY
+    3 00000000                 THUMB
+    4 00000000         
+    5 00000000         ;---------------------------------------------
+    6 00000000         ;  to be programmed ..
+    7 00000000         
+    8 00000000         out_word
+                               PROC
+    9 00000000                 EXPORT           out_word
+   10 00000000         
+   11 00000000 6001            STR              R1, [R0]
+   12 00000002         
+   13 00000002 4770            BX               LR
+   14 00000004                 ALIGN
+   15 00000004                 ENDP
+   16 00000004         
+   17 00000004         in_word PROC
+   18 00000004                 EXPORT           in_word
+   19 00000004         
+   20 00000004 6800            LDR              R0, [R0]
+   21 00000006         
+   22 00000006 4770            BX               LR
+   23 00000008                 ALIGN
+   24 00000008                 ENDP
+   25 00000008                 END
+Command Line: --debug --xref --diag_suppress=9931 --cpu=Cortex-M0 --depend=.\ob
+jects\asm_functions.d -o.\objects\asm_functions.o -I.\RTE\_Target_1 -IC:\Users\
+diego\AppData\Local\Arm\Packs\InES\CTBoard14_DFP\4.0.2\Device\Include -IC:\User
+s\diego\AppData\Local\Arm\Packs\InES\CTBoard14_DFP\4.0.2\Device\Include\m0 -IC:
+\Users\diego\AppData\Local\Arm\Packs\InES\CTBoard14_DFP\4.0.2\HAL\Include --pre
+define="__EVAL SETA 1" --predefine="__UVISION_VERSION SETA 537" --predefine="_R
+TE_ SETA 1" --predefine="_RTE_ SETA 1" --list=.\listings\asm_functions.lst app\
+asm_functions.s
+
+
+
+ARM Macro Assembler    Page 1 Alphabetic symbol ordering
+Relocatable symbols
+
+in_word 00000004
+
+Symbol: in_word
+   Definitions
+      At line 17 in file app\asm_functions.s
+   Uses
+      At line 18 in file app\asm_functions.s
+Comment: in_word used once
+myCode 00000000
+
+Symbol: myCode
+   Definitions
+      At line 2 in file app\asm_functions.s
+   Uses
+      None
+Comment: myCode unused
+out_word 00000000
+
+Symbol: out_word
+   Definitions
+      At line 8 in file app\asm_functions.s
+   Uses
+      At line 9 in file app\asm_functions.s
+Comment: out_word used once
+3 symbols
+336 symbols in table

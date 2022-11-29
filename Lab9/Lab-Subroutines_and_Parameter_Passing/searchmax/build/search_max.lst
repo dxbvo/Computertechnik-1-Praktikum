@@ -56,45 +56,53 @@ ARM Macro Assembler    Page 1
    36 00000000                 EXPORT           search_max
    37 00000000         
    38 00000000         ; STUDENTS: To be programmed
-   39 00000000         
-   40 00000000         ;test the length of table
-   41 00000000 4F02            LDR              R7, =0x00
-   42 00000002 42B9            CMP              R1, R7
-   43 00000004 D000            BEQ              table_is_zero
-   44 00000006         
-   45 00000006         ;table is not zero
+   39 00000000 B5F0            PUSH             {R4-R7, LR}
+   40 00000002         
+   41 00000002 4A07            LDR              R2, =0
+   42 00000004 4B07            LDR              R3, =0x80000000 
+                                                            ;falls Tabelle 0
+   43 00000006         
+   44 00000006 E006            B                cond
 
 
 
 ARM Macro Assembler    Page 2 
 
 
-   46 00000006 6800            LDR              R0, [R0]
-   47 00000008         
-   48 00000008         
-   49 00000008         table_is_zero
-   50 00000008 4801            LDR              R0, =0x80000000
-   51 0000000A         
-   52 0000000A         
-   53 0000000A         
-   54 0000000A         
-   55 0000000A         
-   56 0000000A         ; END: To be programmed
-   57 0000000A 00 00           ALIGN
-   58 0000000C                 ENDP
-   59 0000000C         ; ------------------------------------------------------
+   45 00000008         loop
+   46 00000008 4C07            LDR              R4, =4
+   47 0000000A 4354            MULS             R4, R2, R4
+   48 0000000C 5904            LDR              R4, [R0, R4]
+   49 0000000E         
+   50 0000000E 429C            CMP              R4, R3
+   51 00000010 DB00            BLT              end_if
+   52 00000012 0023            MOVS             R3, R4
+   53 00000014         end_if
+   54 00000014 3201            ADDS             R2, #1
+   55 00000016         cond
+   56 00000016 428A            CMP              R2, R1
+   57 00000018 D1F6            BNE              loop        ; end while loop
+   58 0000001A         
+   59 0000001A 0018            MOVS             R0, R3
+   60 0000001C BDF0            POP              {R4-R7, PC}
+   61 0000001E         
+   62 0000001E         ; END: To be programmed
+   63 0000001E 00 00           ALIGN
+   64 00000020                 ENDP
+   65 00000020         ; ------------------------------------------------------
                        -------------
-   60 0000000C         ; -- End of file
-   61 0000000C         ; ------------------------------------------------------
+   66 00000020         ; -- End of file
+   67 00000020         ; ------------------------------------------------------
                        -------------                      
-   62 0000000C                 END
+   68 00000020                 END
               00000000 
               80000000 
+              00000004 
 Command Line: --debug --xref --diag_suppress=9931 --cpu=Cortex-M0 --depend=.\bu
-ild\search_max.d -o.\build\search_max.o -I.\RTE\_Target_1 -IC:\Users\claud\AppD
-ata\Local\Arm\Packs\InES\CTBoard14_DFP\4.0.2\Device\Include -IC:\Users\claud\Ap
-pData\Local\Arm\Packs\InES\CTBoard14_DFP\4.0.2\Device\Include\m0 -IC:\Users\cla
-ud\AppData\Local\Arm\Packs\InES\CTBoard14_DFP\4.0.2\HAL\Include --predefine="__
+ild\search_max.d -o.\build\search_max.o -I.\RTE\_Target_1 -IC:\Users\diego\AppD
+ata\Local\Arm\Packs\InES\CTBoard14_DFP\4.0.2\Device\Include -IC:\Users\diego\Ap
+pData\Local\Arm\Packs\InES\CTBoard14_DFP\4.0.2\Device\Include\m0 -IC:\Users\die
+go\AppData\Local\Arm\Packs\InES\CTBoard14_DFP\4.0.2\HAL\Include --predefine="__
 EVAL SETA 1" --predefine="__UVISION_VERSION SETA 537" --predefine="_RTE_ SETA 1
 " --predefine="_RTE_ SETA 1" --list=.\build\search_max.lst app\search_max.s
 
@@ -103,6 +111,30 @@ EVAL SETA 1" --predefine="__UVISION_VERSION SETA 537" --predefine="_RTE_ SETA 1
 ARM Macro Assembler    Page 1 Alphabetic symbol ordering
 Relocatable symbols
 
+cond 00000016
+
+Symbol: cond
+   Definitions
+      At line 55 in file app\search_max.s
+   Uses
+      At line 44 in file app\search_max.s
+Comment: cond used once
+end_if 00000014
+
+Symbol: end_if
+   Definitions
+      At line 53 in file app\search_max.s
+   Uses
+      At line 51 in file app\search_max.s
+Comment: end_if used once
+loop 00000008
+
+Symbol: loop
+   Definitions
+      At line 45 in file app\search_max.s
+   Uses
+      At line 57 in file app\search_max.s
+Comment: loop used once
 myCode 00000000
 
 Symbol: myCode
@@ -119,13 +151,5 @@ Symbol: search_max
    Uses
       At line 36 in file app\search_max.s
 Comment: search_max used once
-table_is_zero 00000008
-
-Symbol: table_is_zero
-   Definitions
-      At line 49 in file app\search_max.s
-   Uses
-      At line 43 in file app\search_max.s
-Comment: table_is_zero used once
-3 symbols
-338 symbols in table
+5 symbols
+340 symbols in table

@@ -36,33 +36,29 @@ search_max      PROC
                 EXPORT search_max
 
                 ; STUDENTS: To be programmed
+				PUSH {R4-R7, LR}
 				
-		;test the length of table
-		LDR R7, =0x00
-		CMP R1, R7 
-		BEQ table_is_zero
+				LDR R2, =0
+				LDR R3, =0x80000000		;falls Tabelle 0
+				
+				B cond
+loop
+				LDR R4, =4
+				MULS R4, R2, R4
+				LDR R4, [R0, R4]
+				
+				CMP R4, R3
+				BLT end_if
+				MOVS R3, R4
+end_if
+				ADDS R2, #1
+cond
+				CMP R2, R1
+				BNE loop ; end while loop
+				
+				MOVS R0, R3
+				POP	 {R4-R7, PC}
 		
-		;table is not zero
-		LDR R2, [R0] ;first value of table
-		B cond
-loop    
-		ADDS R4, R0, #4 ; Wert von index in R4
-		CMP R2, R4  ; ist R2 grösser als aktueller Wert vom index
-		
-		
-cond    
-		LDR R3, [R0, #4]  ;second value of table to R3
-		CMP R2, R3
-		BGT loop ; not bigger
-		
-		
-table_is_zero		
-		LDR R0, =0x80000000
-		
-
-
-
-
                 ; END: To be programmed
                 ALIGN
                 ENDP

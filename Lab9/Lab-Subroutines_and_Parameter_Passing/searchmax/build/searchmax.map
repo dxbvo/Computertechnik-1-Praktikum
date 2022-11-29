@@ -138,13 +138,13 @@ Image Symbol Table
     waitForKey                               0x08000f83   Thumb Code    20  main.o(myCode)
     set_bg_green                             0x08000f97   Thumb Code    20  main.o(myCode)
     set_bg_red                               0x08000fab   Thumb Code    22  main.o(myCode)
-    myCode                                   0x0800101c   Section       20  search_max.o(myCode)
-    sample_table1                            0x08001030   Data          32  main.o(myConstants)
-    myConstants                              0x08001030   Section      144  main.o(myConstants)
-    sample_table2                            0x08001050   Data          32  main.o(myConstants)
-    sample_table3                            0x08001070   Data          32  main.o(myConstants)
-    sample_table4                            0x08001090   Data          32  main.o(myConstants)
-    golden_table                             0x080010b0   Data          16  main.o(myConstants)
+    myCode                                   0x0800101c   Section       44  search_max.o(myCode)
+    sample_table1                            0x08001048   Data          32  main.o(myConstants)
+    myConstants                              0x08001048   Section      144  main.o(myConstants)
+    sample_table2                            0x08001068   Data          32  main.o(myConstants)
+    sample_table3                            0x08001088   Data          32  main.o(myConstants)
+    sample_table4                            0x080010a8   Data          32  main.o(myConstants)
+    golden_table                             0x080010c8   Data          16  main.o(myConstants)
     result_table                             0x20000000   Data          16  main.o(myVars)
     myVars                                   0x20000000   Section       16  main.o(myVars)
     STACK                                    0x20000010   Section     8192  startup_ctboard.o(STACK)
@@ -299,8 +299,8 @@ Image Symbol Table
     hal_rcc_setup_pll                        0x08000db9   Thumb Code   192  hal_rcc.o(.text)
     hal_rcc_setup_clock                      0x08000e91   Thumb Code    92  hal_rcc.o(.text)
     main                                     0x08000ef5   Thumb Code   142  main.o(myCode)
-    search_max                               0x0800101d   Thumb Code    12  search_max.o(myCode)
-    Image$$ER_IROM1$$Limit                   0x080010c0   Number         0  anon$$obj.o ABSOLUTE
+    search_max                               0x0800101d   Thumb Code    32  search_max.o(myCode)
+    Image$$ER_IROM1$$Limit                   0x080010d8   Number         0  anon$$obj.o ABSOLUTE
     Image$$RW_IRAM1$$Base                    0x20000000   Number         0  anon$$obj.o ABSOLUTE
     Image$$RW_IRAM1$$ZI$$Base                0x20000010   Number         0  anon$$obj.o ABSOLUTE
     Stack_Mem                                0x20000010   Data        8192  startup_ctboard.o(STACK)
@@ -314,9 +314,9 @@ Memory Map of the image
 
   Image Entry point : 0x08000229
 
-  Load Region LR_IROM1 (Base: 0x08000000, Size: 0x000010d0, Max: 0x00200000, ABSOLUTE)
+  Load Region LR_IROM1 (Base: 0x08000000, Size: 0x000010e8, Max: 0x00200000, ABSOLUTE)
 
-    Execution Region ER_IROM1 (Exec base: 0x08000000, Load base: 0x08000000, Size: 0x000010c0, Max: 0x00200000, ABSOLUTE)
+    Execution Region ER_IROM1 (Exec base: 0x08000000, Load base: 0x08000000, Size: 0x000010d8, Max: 0x00200000, ABSOLUTE)
 
     Exec Addr    Load Addr    Size         Type   Attr      Idx    E Section Name        Object
 
@@ -330,15 +330,15 @@ Memory Map of the image
     0x08000b28   0x08000b28   0x000000ac   Code   RO           48    .text               hal_pwr.o
     0x08000bd4   0x08000bd4   0x00000320   Code   RO           56    .text               hal_rcc.o
     0x08000ef4   0x08000ef4   0x00000128   Code   RO            1    myCode              main.o
-    0x0800101c   0x0800101c   0x00000014   Code   RO            9    myCode              search_max.o
-    0x08001030   0x08001030   0x00000090   Data   RO            2    myConstants         main.o
+    0x0800101c   0x0800101c   0x0000002c   Code   RO            9    myCode              search_max.o
+    0x08001048   0x08001048   0x00000090   Data   RO            2    myConstants         main.o
 
 
-    Execution Region RW_IRAM1 (Exec base: 0x20000000, Load base: 0x080010c0, Size: 0x00002010, Max: 0x00030000, ABSOLUTE)
+    Execution Region RW_IRAM1 (Exec base: 0x20000000, Load base: 0x080010d8, Size: 0x00002010, Max: 0x00030000, ABSOLUTE)
 
     Exec Addr    Load Addr    Size         Type   Attr      Idx    E Section Name        Object
 
-    0x20000000   0x080010c0   0x00000010   Data   RW            3    myVars              main.o
+    0x20000000   0x080010d8   0x00000010   Data   RW            3    myVars              main.o
     0x20000010        -       0x00002000   Zero   RW           17    STACK               startup_ctboard.o
 
 
@@ -349,18 +349,18 @@ Image component sizes
 
       Code (inc. data)   RO Data    RW Data    ZI Data      Debug   Object Name
 
-       124         50          0          0          0        440   datainit_ctboard.o
-       404         20          0          0          0       4198   hal_fmc.o
-      1532         96          0          0          0      12504   hal_gpio.o
-       172         20          0          0          0       2164   hal_pwr.o
-       800        168          0          0          0       5199   hal_rcc.o
-       296         94        144         16          0        568   main.o
-        20         10          0          0          0        352   search_max.o
-        36          8        428          0       8192        840   startup_ctboard.o
-       330         76          0          0          0       6787   system_ctboard.o
+       124         50          0          0          0        428   datainit_ctboard.o
+       404         20          0          0          0       4189   hal_fmc.o
+      1532         96          0          0          0      12495   hal_gpio.o
+       172         20          0          0          0       2155   hal_pwr.o
+       800        168          0          0          0       5190   hal_rcc.o
+       296         94        144         16          0        556   main.o
+        44         14          0          0          0        352   search_max.o
+        36          8        428          0       8192        828   startup_ctboard.o
+       330         76          0          0          0       6778   system_ctboard.o
 
     ----------------------------------------------------------------------
-      3716        542        572         16       8192      33052   Object Totals
+      3740        546        572         16       8192      32971   Object Totals
          0          0          0          0          0          0   (incl. Generated)
          2          0          0          0          0          0   (incl. Padding)
 
@@ -375,15 +375,15 @@ Image component sizes
 
       Code (inc. data)   RO Data    RW Data    ZI Data      Debug   
 
-      3716        542        572         16       8192      32816   Grand Totals
-      3716        542        572         16       8192      32816   ELF Image Totals
-      3716        542        572         16          0          0   ROM Totals
+      3740        546        572         16       8192      32735   Grand Totals
+      3740        546        572         16       8192      32735   ELF Image Totals
+      3740        546        572         16          0          0   ROM Totals
 
 ==============================================================================
 
-    Total RO  Size (Code + RO Data)                 4288 (   4.19kB)
+    Total RO  Size (Code + RO Data)                 4312 (   4.21kB)
     Total RW  Size (RW Data + ZI Data)              8208 (   8.02kB)
-    Total ROM Size (Code + RO Data + RW Data)       4304 (   4.20kB)
+    Total ROM Size (Code + RO Data + RW Data)       4328 (   4.23kB)
 
 ==============================================================================
 
