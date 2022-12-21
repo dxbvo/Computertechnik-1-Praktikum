@@ -1,0 +1,142 @@
+
+
+
+ARM Macro Assembler    Page 1 
+
+
+    1 00000000         ;* -----------------------------------------------------
+                       -----------------------
+    2 00000000         ;* --  _____       ______  _____                        
+                                             -
+    3 00000000         ;* -- |_   _|     |  ____|/ ____|                       
+                                             -
+    4 00000000         ;* --   | |  _ __ | |__  | (___    Institute of Embedded
+                        Systems              -
+    5 00000000         ;* --   | | | '_ \|  __|  \___ \   Zurich University of 
+                                             -
+    6 00000000         ;* --  _| |_| | | | |____ ____) |  Applied Sciences     
+                                             -
+    7 00000000         ;* -- |_____|_| |_|______|_____/   8401 Winterthur, Swit
+                       zerland               -
+    8 00000000         ;* -----------------------------------------------------
+                       -----------------------
+    9 00000000         ;* --
+   10 00000000         ;* -- Project     : CT1 - Lab 12
+   11 00000000         ;* -- Description : Common procedures
+   12 00000000         ;* -- 
+   13 00000000         ;* -- $Id: utils.s 1244 2015-02-03 10:12:17Z ruan $
+   14 00000000         ;* -----------------------------------------------------
+                       -----------------------
+   15 00000000         
+   16 00000000         
+   17 00000000         ; ------------------------------------------------------
+                       -----------------------
+   18 00000000         ; -- Constants
+   19 00000000         ; ------------------------------------------------------
+                       -----------------------
+   20 00000000         
+   21 00000000                 AREA             myCode, CODE, READONLY
+   22 00000000         
+   23 00000000                 THUMB
+   24 00000000         
+   25 00000000         
+   26 00000000         ; ------------------------------------------------------
+                       -----------------------
+   27 00000000         ; Set bit of a register (SFR, word -> 32 bit)
+   28 00000000         ; - Address of register in R6
+   29 00000000         ; - Bits to be set in R7
+   30 00000000         ; ------------------------------------------------------
+                       -----------------------
+   31 00000000         set_sfr PROC
+   32 00000000                 EXPORT           set_sfr
+   33 00000000         
+   34 00000000 B500            PUSH             {LR}
+   35 00000002         
+   36 00000002 6802            LDR              R2, [R0]    ; Load register val
+                                                            ue to R0
+   37 00000004 430A            ORRS             R2, R2, R1  ; Set bits
+   38 00000006 6002            STR              R2, [R0]    ; Store new registe
+                                                            r value
+   39 00000008         
+   40 00000008 BD00            POP              {PC}        ; Restore registers
+                                                             and return
+   41 0000000A         
+   42 0000000A                 ENDP
+   43 0000000A         
+
+
+
+ARM Macro Assembler    Page 2 
+
+
+   44 0000000A         
+   45 0000000A         ; ------------------------------------------------------
+                       -----------------------
+   46 0000000A         ; Clear all bits of a register (SFR, word -> 32 bit)
+   47 0000000A         ; - Address of register in R0
+   48 0000000A         ; - Bits to be cleared in R1
+   49 0000000A         ; ------------------------------------------------------
+                       -----------------------
+   50 0000000A         clear_sfr
+                               PROC
+   51 0000000A                 EXPORT           clear_sfr
+   52 0000000A         
+   53 0000000A B500            PUSH             {LR}
+   54 0000000C         
+   55 0000000C 6802            LDR              R2, [R0]    ; Load register val
+                                                            ue to R0
+   56 0000000E 438A            BICS             R2, R2, R1  ; Clear bits
+   57 00000010 6002            STR              R2, [R0]    ; Store new registe
+                                                            r value
+   58 00000012         
+   59 00000012 BD00            POP              {PC}        ; Restore registers
+                                                             and return
+   60 00000014         
+   61 00000014                 ENDP
+   62 00000014         
+   63 00000014         
+   64 00000014         ; ------------------------------------------------------
+                       -----------------------
+   65 00000014         ; -- End of file
+   66 00000014         ; ------------------------------------------------------
+                       -----------------------
+   67 00000014                 END
+Command Line: --debug --xref --diag_suppress=9931 --cpu=Cortex-M0 --depend=.\bu
+ild\utils.d -o.\build\utils.o -I.\RTE\_Target_1 -IC:\Users\claud\AppData\Local\
+Arm\Packs\InES\CTBoard14_DFP\4.0.2\Device\Include -IC:\Users\claud\AppData\Loca
+l\Arm\Packs\InES\CTBoard14_DFP\4.0.2\Device\Include\m0 -IC:\Users\claud\AppData
+\Local\Arm\Packs\InES\CTBoard14_DFP\4.0.2\HAL\Include --predefine="__EVAL SETA 
+1" --predefine="__UVISION_VERSION SETA 537" --predefine="_RTE_ SETA 1" --predef
+ine="_RTE_ SETA 1" --list=.\build\utils.lst app\utils.s
+
+
+
+ARM Macro Assembler    Page 1 Alphabetic symbol ordering
+Relocatable symbols
+
+clear_sfr 0000000A
+
+Symbol: clear_sfr
+   Definitions
+      At line 50 in file app\utils.s
+   Uses
+      At line 51 in file app\utils.s
+Comment: clear_sfr used once
+myCode 00000000
+
+Symbol: myCode
+   Definitions
+      At line 21 in file app\utils.s
+   Uses
+      None
+Comment: myCode unused
+set_sfr 00000000
+
+Symbol: set_sfr
+   Definitions
+      At line 31 in file app\utils.s
+   Uses
+      At line 32 in file app\utils.s
+Comment: set_sfr used once
+3 symbols
+336 symbols in table

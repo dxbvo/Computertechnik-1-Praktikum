@@ -1,0 +1,383 @@
+
+
+
+ARM Macro Assembler    Page 1 
+
+
+    1 00000000         ;* -----------------------------------------------------
+                       -----------------------
+    2 00000000         ;* --  _____       ______  _____                        
+                                             -
+    3 00000000         ;* -- |_   _|     |  ____|/ ____|                       
+                                             -
+    4 00000000         ;* --   | |  _ __ | |__  | (___    Institute of Embedded
+                        Systems              -
+    5 00000000         ;* --   | | | '_ \|  __|  \___ \   Zurich University of 
+                                             -
+    6 00000000         ;* --  _| |_| | | | |____ ____) |  Applied Sciences     
+                                             -
+    7 00000000         ;* -- |_____|_| |_|______|_____/   8401 Winterthur, Swit
+                       zerland               -
+    8 00000000         ;* -----------------------------------------------------
+                       -----------------------
+    9 00000000         ;* --
+   10 00000000         ;* -- Project     : CT1 - Lab 12
+   11 00000000         ;* -- Description : Reading the User-Button as Interrupt
+                        source
+   12 00000000         ;* --      
+   13 00000000         ;* -- $Id: main.s 5082 2020-05-14 13:56:07Z akdi $
+   14 00000000         ;* --   
+   15 00000000         ;* -----------------------------------------------------
+                       -----------------------
+   16 00000000         
+   17 00000000         
+   18 00000000                 IMPORT           init_measurement
+   19 00000000                 IMPORT           clear_IRQ_EXTI0
+   20 00000000                 IMPORT           clear_IRQ_TIM2
+   21 00000000         
+   22 00000000         ; ------------------------------------------------------
+                       -----------------------
+   23 00000000         ; -- Constants
+   24 00000000         ; ------------------------------------------------------
+                       -----------------------
+   25 00000000         
+   26 00000000                 AREA             myCode, CODE, READONLY
+   27 00000000         
+   28 00000000                 THUMB
+   29 00000000         
+   30 00000000 40020010 
+                       REG_GPIOA_IDR
+                               EQU              0x40020010
+   31 00000000 60000100 
+                       LED_15_0
+                               EQU              0x60000100
+   32 00000000 60000102 
+                       LED_16_31
+                               EQU              0x60000102
+   33 00000000 60000114 
+                       REG_CT_7SEG
+                               EQU              0x60000114
+   34 00000000 E000E100 
+                       REG_SETENA0
+                               EQU              0xe000e100
+   35 00000000         
+   36 00000000         
+   37 00000000         ; ------------------------------------------------------
+
+
+
+ARM Macro Assembler    Page 2 
+
+
+                       -----------------------
+   38 00000000         ; -- Main
+   39 00000000         ; ------------------------------------------------------
+                       -----------------------             
+   40 00000000         main    PROC
+   41 00000000                 EXPORT           main
+   42 00000000         
+   43 00000000         
+   44 00000000 F7FF FFFE       BL               init_measurement
+   45 00000004         
+   46 00000004         ; Configure NVIC (enable interrupt channel)
+   47 00000004         ; STUDENTS: To be programmed
+   48 00000004         
+   49 00000004 480F            LDR              R0, =REG_SETENA0
+   50 00000006 4910            LDR              R1, =0x10000040
+   51 00000008 6001            STR              R1, [R0]
+   52 0000000A         
+   53 0000000A B662            CPSIE            i
+   54 0000000C         
+   55 0000000C         ; END: To be programmed 
+   56 0000000C         
+   57 0000000C         ; Initialize variables
+   58 0000000C         ; STUDENTS: To be programmed 
+   59 0000000C         
+   60 0000000C         
+   61 0000000C         ; END: To be programmed
+   62 0000000C         
+   63 0000000C         loop
+   64 0000000C         ; Output counter on 7-seg
+   65 0000000C         ; STUDENTS: To be programmed
+   66 0000000C         
+   67 0000000C 480F            LDR              R0, =REG_CT_7SEG
+   68 0000000E 4910            LDR              R1, =COUNTER
+   69 00000010 6809            LDR              R1, [R1]
+   70 00000012 8001            STRH             R1, [R0]
+   71 00000014         
+   72 00000014         ; END: To be programmed
+   73 00000014         
+   74 00000014 E7FA            B                loop
+   75 00000016         
+   76 00000016         
+   77 00000016                 ENDP
+   78 00000016         
+   79 00000016         
+   80 00000016         ; ------------------------------------------------------
+                       -----------------------
+   81 00000016         ; Handler for EXTI0 interrupt
+   82 00000016         ; ------------------------------------------------------
+                       -----------------------
+   83 00000016         ; STUDENTS: To be programmed
+   84 00000016         
+   85 00000016         EXTI0_IRQHandler
+                               PROC
+   86 00000016                 EXPORT           EXTI0_IRQHandler
+   87 00000016 B500            PUSH{LR}
+   88 00000018         
+   89 00000018 4A0D            LDR              R2, =COUNTER
+   90 0000001A 6811            LDR              R1, [R2]
+   91 0000001C 3101            ADDS             R1, #0x01
+
+
+
+ARM Macro Assembler    Page 3 
+
+
+   92 0000001E 6011            STR              R1, [R2]
+   93 00000020         
+   94 00000020 F7FF FFFE       BL               clear_IRQ_EXTI0
+   95 00000024 BD00            POP              {PC}
+   96 00000026                 ENDP
+   97 00000026         
+   98 00000026         ; END: To be programmed
+   99 00000026         
+  100 00000026         
+  101 00000026         ; ------------------------------------------------------
+                       -----------------------                   
+  102 00000026         ; Handler for TIM2 interrupt
+  103 00000026         ; ------------------------------------------------------
+                       -----------------------
+  104 00000026         ; STUDENTS: To be programmed
+  105 00000026         
+  106 00000026         TIM2_IRQHandler
+                               PROC
+  107 00000026                 EXPORT           TIM2_IRQHandler
+  108 00000026 B500            PUSH             {LR}
+  109 00000028         
+  110 00000028         ;LED Bar toggle
+  111 00000028 480B            LDR              R0, =LED_16_31
+  112 0000002A 8801            LDRH             R1, [R0]
+  113 0000002C 4A0B            LDR              R2, =0x0000FFFF
+  114 0000002E 4051            EORS             R1, R2
+  115 00000030 8001            STRH             R1, [R0]
+  116 00000032         
+  117 00000032         ;copy counter and reset
+  118 00000032 4807            LDR              R0, =COUNTER
+  119 00000034 4907            LDR              R1, =COUNTER2
+  120 00000036 6802            LDR              R2, [R0]
+  121 00000038 600A            STR              R2, [R1]
+  122 0000003A 4A09            LDR              R2, =0x00
+  123 0000003C 6002            STR              R2, [R0]
+  124 0000003E         
+  125 0000003E F7FF FFFE       BL               clear_IRQ_TIM2
+  126 00000042 BD00            POP              {PC}
+  127 00000044                 ENDP
+  128 00000044         
+  129 00000044         ; END: To be programmed
+  130 00000044                 ALIGN
+  131 00000044         
+  132 00000044         ; ------------------------------------------------------
+                       -----------------------
+  133 00000044         ; -- Variables
+  134 00000044         ; ------------------------------------------------------
+                       -----------------------
+  135 00000044         
+  136 00000044 E000E100 
+              10000040 
+              60000114 
+              00000000 
+              00000000 
+              60000102 
+              0000FFFF 
+              00000000 
+              00000000 
+              00000000         AREA             myVars, DATA, READWRITE
+
+
+
+ARM Macro Assembler    Page 4 
+
+
+  137 00000000         
+  138 00000000         ; STUDENTS: To be programmed
+  139 00000000 00000000 
+                       COUNTER DCD              0x00
+  140 00000004 00000000 
+                       COUNTER2
+                               DCD              0x00
+  141 00000008         ; END: To be programmed
+  142 00000008         
+  143 00000008         
+  144 00000008         ; ------------------------------------------------------
+                       -----------------------
+  145 00000008         ; -- End of file
+  146 00000008         ; ------------------------------------------------------
+                       -----------------------
+  147 00000008                 END
+Command Line: --debug --xref --diag_suppress=9931 --cpu=Cortex-M0 --depend=.\bu
+ild\main.d -o.\build\main.o -I.\RTE\_Target_1 -IC:\Users\claud\AppData\Local\Ar
+m\Packs\InES\CTBoard14_DFP\4.0.2\Device\Include -IC:\Users\claud\AppData\Local\
+Arm\Packs\InES\CTBoard14_DFP\4.0.2\Device\Include\m0 -IC:\Users\claud\AppData\L
+ocal\Arm\Packs\InES\CTBoard14_DFP\4.0.2\HAL\Include --predefine="__EVAL SETA 1"
+ --predefine="__UVISION_VERSION SETA 537" --predefine="_RTE_ SETA 1" --predefin
+e="_RTE_ SETA 1" --list=.\build\main.lst app\main.s
+
+
+
+ARM Macro Assembler    Page 1 Alphabetic symbol ordering
+Relocatable symbols
+
+EXTI0_IRQHandler 00000016
+
+Symbol: EXTI0_IRQHandler
+   Definitions
+      At line 85 in file app\main.s
+   Uses
+      At line 86 in file app\main.s
+Comment: EXTI0_IRQHandler used once
+TIM2_IRQHandler 00000026
+
+Symbol: TIM2_IRQHandler
+   Definitions
+      At line 106 in file app\main.s
+   Uses
+      At line 107 in file app\main.s
+Comment: TIM2_IRQHandler used once
+loop 0000000C
+
+Symbol: loop
+   Definitions
+      At line 63 in file app\main.s
+   Uses
+      At line 74 in file app\main.s
+Comment: loop used once
+main 00000000
+
+Symbol: main
+   Definitions
+      At line 40 in file app\main.s
+   Uses
+      At line 41 in file app\main.s
+Comment: main used once
+myCode 00000000
+
+Symbol: myCode
+   Definitions
+      At line 26 in file app\main.s
+   Uses
+      None
+Comment: myCode unused
+5 symbols
+
+
+
+ARM Macro Assembler    Page 1 Alphabetic symbol ordering
+Relocatable symbols
+
+COUNTER 00000000
+
+Symbol: COUNTER
+   Definitions
+      At line 139 in file app\main.s
+   Uses
+      At line 68 in file app\main.s
+      At line 89 in file app\main.s
+      At line 118 in file app\main.s
+
+COUNTER2 00000004
+
+Symbol: COUNTER2
+   Definitions
+      At line 140 in file app\main.s
+   Uses
+      At line 119 in file app\main.s
+Comment: COUNTER2 used once
+myVars 00000000
+
+Symbol: myVars
+   Definitions
+      At line 136 in file app\main.s
+   Uses
+      None
+Comment: myVars unused
+3 symbols
+
+
+
+ARM Macro Assembler    Page 1 Alphabetic symbol ordering
+Absolute symbols
+
+LED_15_0 60000100
+
+Symbol: LED_15_0
+   Definitions
+      At line 31 in file app\main.s
+   Uses
+      None
+Comment: LED_15_0 unused
+LED_16_31 60000102
+
+Symbol: LED_16_31
+   Definitions
+      At line 32 in file app\main.s
+   Uses
+      At line 111 in file app\main.s
+Comment: LED_16_31 used once
+REG_CT_7SEG 60000114
+
+Symbol: REG_CT_7SEG
+   Definitions
+      At line 33 in file app\main.s
+   Uses
+      At line 67 in file app\main.s
+Comment: REG_CT_7SEG used once
+REG_GPIOA_IDR 40020010
+
+Symbol: REG_GPIOA_IDR
+   Definitions
+      At line 30 in file app\main.s
+   Uses
+      None
+Comment: REG_GPIOA_IDR unused
+REG_SETENA0 E000E100
+
+Symbol: REG_SETENA0
+   Definitions
+      At line 34 in file app\main.s
+   Uses
+      At line 49 in file app\main.s
+Comment: REG_SETENA0 used once
+5 symbols
+
+
+
+ARM Macro Assembler    Page 1 Alphabetic symbol ordering
+External symbols
+
+clear_IRQ_EXTI0 00000000
+
+Symbol: clear_IRQ_EXTI0
+   Definitions
+      At line 19 in file app\main.s
+   Uses
+      At line 94 in file app\main.s
+Comment: clear_IRQ_EXTI0 used once
+clear_IRQ_TIM2 00000000
+
+Symbol: clear_IRQ_TIM2
+   Definitions
+      At line 20 in file app\main.s
+   Uses
+      At line 125 in file app\main.s
+Comment: clear_IRQ_TIM2 used once
+init_measurement 00000000
+
+Symbol: init_measurement
+   Definitions
+      At line 18 in file app\main.s
+   Uses
+      At line 44 in file app\main.s
+Comment: init_measurement used once
+3 symbols
+351 symbols in table

@@ -1,0 +1,459 @@
+
+
+
+ARM Macro Assembler    Page 1 
+
+
+    1 00000000         ;* -----------------------------------------------------
+                       -----------------------
+    2 00000000         ;* --  _____       ______  _____                        
+                                             -
+    3 00000000         ;* -- |_   _|     |  ____|/ ____|                       
+                                             -
+    4 00000000         ;* --   | |  _ __ | |__  | (___    Institute of Embedded
+                        Systems              -
+    5 00000000         ;* --   | | | '_ \|  __|  \___ \   Zurich University of 
+                                             -
+    6 00000000         ;* --  _| |_| | | | |____ ____) |  Applied Sciences     
+                                             -
+    7 00000000         ;* -- |_____|_| |_|______|_____/   8401 Winterthur, Swit
+                       zerland               -
+    8 00000000         ;* -----------------------------------------------------
+                       -----------------------
+    9 00000000         ;* --
+   10 00000000         ;* -- Project     : CT1 - Lab 12
+   11 00000000         ;* -- Description : Meassuring motor speed and direction
+                       
+   12 00000000         ;* -- 
+   13 00000000         ;* -- 1) Setup external interrupt EXTI for counting moto
+                       r pulses
+   14 00000000         ;* -- 2) Setup TIM2 for generating 1 Hz reference clock
+   15 00000000         ;* -- 3) Functions to clear IRQ Flip-flops
+   16 00000000         ;* -- 
+   17 00000000         ;* -- $Id: measurement.s 3858 2017-01-09 13:26:26Z kesr 
+                       $
+   18 00000000         ;* -----------------------------------------------------
+                       -----------------------
+   19 00000000         
+   20 00000000                 IMPORT           set_sfr
+   21 00000000                 IMPORT           clear_sfr
+   22 00000000         
+   23 00000000         
+   24 00000000         ; ------------------------------------------------------
+                       -----------------------
+   25 00000000         ; -- Constants
+   26 00000000         ; ------------------------------------------------------
+                       -----------------------
+   27 00000000         
+   28 00000000                 AREA             myCode, CODE, READONLY
+   29 00000000         
+   30 00000000                 THUMB
+   31 00000000         
+   32 00000000 40023830 
+                       REG_RCC_AHB1ENR
+                               EQU              0x40023830
+   33 00000000 40023840 
+                       REG_RCC_APB1ENR
+                               EQU              0x40023840
+   34 00000000 40023844 
+                       REG_RCC_APB2ENR
+                               EQU              0x40023844
+   35 00000000         
+   36 00000000 4002000C 
+                       REG_GPIOA_PUPDR
+                               EQU              0x4002000c
+   37 00000000         
+
+
+
+ARM Macro Assembler    Page 2 
+
+
+   38 00000000 40013C00 
+                       REG_EXTI_IMR
+                               EQU              0x40013c00
+   39 00000000 40013C08 
+                       REG_EXTI_RTSR
+                               EQU              0x40013c08
+   40 00000000 40013C14 
+                       REG_EXTI_PR
+                               EQU              0x40013c14
+   41 00000000         
+   42 00000000 40000000 
+                       REG_TIM2_CR1
+                               EQU              0x40000000
+   43 00000000 4000000C 
+                       REG_TIM2_DIER
+                               EQU              0x4000000c
+   44 00000000 40000010 
+                       REG_TIM2_SR
+                               EQU              0x40000010
+   45 00000000 40000014 
+                       REG_TIM2_EGR
+                               EQU              0x40000014
+   46 00000000 40000028 
+                       REG_TIM2_PSC
+                               EQU              0x40000028
+   47 00000000 4000002C 
+                       REG_TIM2_ARR
+                               EQU              0x4000002c
+   48 00000000         
+   49 00000000         
+   50 00000000         
+   51 00000000         ; ------------------------------------------------------
+                       -----------------------
+   52 00000000         ; Initialize EXTI
+   53 00000000         ; ------------------------------------------------------
+                       -----------------------
+   54 00000000         init_measurement
+                               PROC
+   55 00000000                 EXPORT           init_measurement
+   56 00000000         
+   57 00000000 B500            PUSH             {LR}
+   58 00000002         
+   59 00000002         init_exti                            ; Clock configurati
+                                                            on
+   60 00000002 481E            LDR              R0, =REG_RCC_AHB1ENR
+   61 00000004 491E            LDR              R1, =0x1    ; Enable GPIOA cloc
+                                                            k
+   62 00000006 F7FF FFFE       BL               set_sfr
+   63 0000000A         
+   64 0000000A 481E            LDR              R0, =REG_RCC_APB2ENR
+   65 0000000C 491E            LDR              R1, =0x4000 ; Enable SYSCFG clo
+                                                            ck
+   66 0000000E F7FF FFFE       BL               set_sfr
+   67 00000012         
+   68 00000012         ; Input pin configuration (PA.0)
+   69 00000012 481E            LDR              R0, =REG_GPIOA_PUPDR
+   70 00000014 491E            LDR              R1, =0x2    ; Set pin to pull-d
+                                                            own mode
+   71 00000016 F7FF FFFE       BL               set_sfr
+
+
+
+ARM Macro Assembler    Page 3 
+
+
+   72 0000001A         
+   73 0000001A         ; Configure EXTI
+   74 0000001A 481E            LDR              R0, =REG_EXTI_IMR
+   75 0000001C 4918            LDR              R1, =0x1    ; Unmask EXTI0 inte
+                                                            rrupt
+   76 0000001E F7FF FFFE       BL               set_sfr
+   77 00000022         
+   78 00000022 481D            LDR              R0, =REG_EXTI_RTSR
+   79 00000024 4916            LDR              R1, =0x1    ; Trigger on rising
+                                                             edge
+   80 00000026 F7FF FFFE       BL               set_sfr
+   81 0000002A         
+   82 0000002A         
+   83 0000002A         init_timer                           ; Clock configurati
+                                                            on
+   84 0000002A 481C            LDR              R0, =REG_RCC_APB1ENR
+   85 0000002C 4914            LDR              R1, =0x1    ; Enable TIM2 clock
+                                                            
+   86 0000002E F7FF FFFE       BL               set_sfr
+   87 00000032         
+   88 00000032         ; Configure TIM2 frequency
+   89 00000032 481B            LDR              R0, =REG_TIM2_PSC
+   90 00000034 491B            LDR              R1, =839    ; Timer prescaler =
+                                                            > 84Mhz / 840 = 100
+                                                            kHz => 10us
+   91 00000036 F7FF FFFE       BL               set_sfr
+   92 0000003A         
+   93 0000003A 481B            LDR              R0, =REG_TIM2_ARR
+   94 0000003C 491B            LDR              R1, =0xffffffff ; Clear Registe
+                                                            r first, it gets
+   95 0000003E F7FF FFFE       BL               clear_sfr   ;   initialized wit
+                                                            h 0xffffffff
+   96 00000042 491B            LDR              R1, =199998 ; Autoreload value 
+                                                            => 99999+1 => 1s
+   97 00000044 F7FF FFFE       BL               set_sfr
+   98 00000048         
+   99 00000048 481A            LDR              R0, =REG_TIM2_EGR
+  100 0000004A 490D            LDR              R1, =0x1    ; Update TIM2 confi
+                                                            guration
+  101 0000004C F7FF FFFE       BL               set_sfr
+  102 00000050         
+  103 00000050 4819            LDR              R0, =REG_TIM2_DIER
+  104 00000052 490B            LDR              R1, =0x1    ; Enable interrupt 
+                                                            source
+  105 00000054 F7FF FFFE       BL               set_sfr
+  106 00000058         
+  107 00000058 4818            LDR              R0, =REG_TIM2_CR1
+  108 0000005A 4909            LDR              R1, =0x1    ; Enable TIM2
+  109 0000005C F7FF FFFE       BL               set_sfr
+  110 00000060         
+  111 00000060         ; Return
+  112 00000060 BD00            POP              {PC}
+  113 00000062                 ENDP
+  114 00000062         
+  115 00000062         clear_IRQ_EXTI0
+                               PROC
+  116 00000062                 EXPORT           clear_IRQ_EXTI0
+  117 00000062 B500            PUSH             {LR}
+  118 00000064 4816            LDR              R0, =REG_EXTI_PR
+
+
+
+ARM Macro Assembler    Page 4 
+
+
+  119 00000066 4906            LDR              R1, =0x1    ; Clear irq pending
+                                                             bit
+  120 00000068 F7FF FFFE       BL               set_sfr
+  121 0000006C BD00            POP              {PC}
+  122 0000006E                 ENDP
+  123 0000006E         
+  124 0000006E         clear_IRQ_TIM2
+                               PROC
+  125 0000006E                 EXPORT           clear_IRQ_TIM2
+  126 0000006E B500            PUSH             {LR}
+  127 00000070 4814            LDR              R0, =REG_TIM2_SR
+  128 00000072 4903            LDR              R1, =0x1    ; Clear irq pending
+                                                             bit
+  129 00000074 F7FF FFFE       BL               clear_sfr
+  130 00000078 BD00            POP              {PC}
+  131 0000007A                 ENDP
+  132 0000007A         
+  133 0000007A         ; ------------------------------------------------------
+                       -----------------------
+  134 0000007A         ; -- End of file
+  135 0000007A         ; ------------------------------------------------------
+                       -----------------------
+  136 0000007A 00 00           ALIGN
+  137 0000007C                 END
+              40023830 
+              00000001 
+              40023844 
+              00004000 
+              4002000C 
+              00000002 
+              40013C00 
+              40013C08 
+              40023840 
+              40000028 
+              00000347 
+              4000002C 
+              FFFFFFFF 
+              00030D3E 
+              40000014 
+              4000000C 
+              40000000 
+              40013C14 
+              40000010 
+Command Line: --debug --xref --diag_suppress=9931 --cpu=Cortex-M0 --depend=.\bu
+ild\measurement.d -o.\build\measurement.o -I.\RTE\_Target_1 -IC:\Users\claud\Ap
+pData\Local\Arm\Packs\InES\CTBoard14_DFP\4.0.2\Device\Include -IC:\Users\claud\
+AppData\Local\Arm\Packs\InES\CTBoard14_DFP\4.0.2\Device\Include\m0 -IC:\Users\c
+laud\AppData\Local\Arm\Packs\InES\CTBoard14_DFP\4.0.2\HAL\Include --predefine="
+__EVAL SETA 1" --predefine="__UVISION_VERSION SETA 537" --predefine="_RTE_ SETA
+ 1" --predefine="_RTE_ SETA 1" --list=.\build\measurement.lst app\measurement.s
+
+
+
+ARM Macro Assembler    Page 1 Alphabetic symbol ordering
+Relocatable symbols
+
+clear_IRQ_EXTI0 00000062
+
+Symbol: clear_IRQ_EXTI0
+   Definitions
+      At line 115 in file app\measurement.s
+   Uses
+      At line 116 in file app\measurement.s
+Comment: clear_IRQ_EXTI0 used once
+clear_IRQ_TIM2 0000006E
+
+Symbol: clear_IRQ_TIM2
+   Definitions
+      At line 124 in file app\measurement.s
+   Uses
+      At line 125 in file app\measurement.s
+Comment: clear_IRQ_TIM2 used once
+init_exti 00000002
+
+Symbol: init_exti
+   Definitions
+      At line 59 in file app\measurement.s
+   Uses
+      None
+Comment: init_exti unused
+init_measurement 00000000
+
+Symbol: init_measurement
+   Definitions
+      At line 54 in file app\measurement.s
+   Uses
+      At line 55 in file app\measurement.s
+Comment: init_measurement used once
+init_timer 0000002A
+
+Symbol: init_timer
+   Definitions
+      At line 83 in file app\measurement.s
+   Uses
+      None
+Comment: init_timer unused
+myCode 00000000
+
+Symbol: myCode
+   Definitions
+      At line 28 in file app\measurement.s
+   Uses
+      None
+Comment: myCode unused
+6 symbols
+
+
+
+ARM Macro Assembler    Page 1 Alphabetic symbol ordering
+Absolute symbols
+
+REG_EXTI_IMR 40013C00
+
+Symbol: REG_EXTI_IMR
+   Definitions
+      At line 38 in file app\measurement.s
+   Uses
+      At line 74 in file app\measurement.s
+Comment: REG_EXTI_IMR used once
+REG_EXTI_PR 40013C14
+
+Symbol: REG_EXTI_PR
+   Definitions
+      At line 40 in file app\measurement.s
+   Uses
+      At line 118 in file app\measurement.s
+Comment: REG_EXTI_PR used once
+REG_EXTI_RTSR 40013C08
+
+Symbol: REG_EXTI_RTSR
+   Definitions
+      At line 39 in file app\measurement.s
+   Uses
+      At line 78 in file app\measurement.s
+Comment: REG_EXTI_RTSR used once
+REG_GPIOA_PUPDR 4002000C
+
+Symbol: REG_GPIOA_PUPDR
+   Definitions
+      At line 36 in file app\measurement.s
+   Uses
+      At line 69 in file app\measurement.s
+Comment: REG_GPIOA_PUPDR used once
+REG_RCC_AHB1ENR 40023830
+
+Symbol: REG_RCC_AHB1ENR
+   Definitions
+      At line 32 in file app\measurement.s
+   Uses
+      At line 60 in file app\measurement.s
+Comment: REG_RCC_AHB1ENR used once
+REG_RCC_APB1ENR 40023840
+
+Symbol: REG_RCC_APB1ENR
+   Definitions
+      At line 33 in file app\measurement.s
+   Uses
+      At line 84 in file app\measurement.s
+Comment: REG_RCC_APB1ENR used once
+REG_RCC_APB2ENR 40023844
+
+Symbol: REG_RCC_APB2ENR
+   Definitions
+      At line 34 in file app\measurement.s
+   Uses
+      At line 64 in file app\measurement.s
+Comment: REG_RCC_APB2ENR used once
+REG_TIM2_ARR 4000002C
+
+Symbol: REG_TIM2_ARR
+
+
+
+ARM Macro Assembler    Page 2 Alphabetic symbol ordering
+Absolute symbols
+
+   Definitions
+      At line 47 in file app\measurement.s
+   Uses
+      At line 93 in file app\measurement.s
+Comment: REG_TIM2_ARR used once
+REG_TIM2_CR1 40000000
+
+Symbol: REG_TIM2_CR1
+   Definitions
+      At line 42 in file app\measurement.s
+   Uses
+      At line 107 in file app\measurement.s
+Comment: REG_TIM2_CR1 used once
+REG_TIM2_DIER 4000000C
+
+Symbol: REG_TIM2_DIER
+   Definitions
+      At line 43 in file app\measurement.s
+   Uses
+      At line 103 in file app\measurement.s
+Comment: REG_TIM2_DIER used once
+REG_TIM2_EGR 40000014
+
+Symbol: REG_TIM2_EGR
+   Definitions
+      At line 45 in file app\measurement.s
+   Uses
+      At line 99 in file app\measurement.s
+Comment: REG_TIM2_EGR used once
+REG_TIM2_PSC 40000028
+
+Symbol: REG_TIM2_PSC
+   Definitions
+      At line 46 in file app\measurement.s
+   Uses
+      At line 89 in file app\measurement.s
+Comment: REG_TIM2_PSC used once
+REG_TIM2_SR 40000010
+
+Symbol: REG_TIM2_SR
+   Definitions
+      At line 44 in file app\measurement.s
+   Uses
+      At line 127 in file app\measurement.s
+Comment: REG_TIM2_SR used once
+13 symbols
+
+
+
+ARM Macro Assembler    Page 1 Alphabetic symbol ordering
+External symbols
+
+clear_sfr 00000000
+
+Symbol: clear_sfr
+   Definitions
+      At line 21 in file app\measurement.s
+   Uses
+      At line 95 in file app\measurement.s
+      At line 129 in file app\measurement.s
+
+set_sfr 00000000
+
+Symbol: set_sfr
+   Definitions
+      At line 20 in file app\measurement.s
+   Uses
+      At line 62 in file app\measurement.s
+      At line 66 in file app\measurement.s
+      At line 71 in file app\measurement.s
+      At line 76 in file app\measurement.s
+      At line 80 in file app\measurement.s
+      At line 86 in file app\measurement.s
+      At line 91 in file app\measurement.s
+      At line 97 in file app\measurement.s
+      At line 101 in file app\measurement.s
+      At line 105 in file app\measurement.s
+      At line 109 in file app\measurement.s
+      At line 120 in file app\measurement.s
+
+2 symbols
+356 symbols in table
